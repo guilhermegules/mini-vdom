@@ -9,6 +9,17 @@ function Button(props: { onClick: () => void; label: string }) {
   );
 }
 
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  return createElement(
+    "div",
+    null,
+    createElement("p", null, `Count: ${count}`),
+    createElement("button", { onclick: () => setCount(count + 1) }, "Increment")
+  );
+}
+
 function App() {
   const [count, setCount] = useState(0);
 
@@ -39,6 +50,7 @@ function App() {
       { onclick: () => setCount((c) => c + 1) },
       `count ${count}`
     ),
+    createElement(Counter),
     "Some footer text here"
   );
 }
