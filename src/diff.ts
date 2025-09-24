@@ -10,6 +10,9 @@ export function diff(
   const childNodes = container.childNodes;
   const oldNode = childNodes[index];
 
+  oldVNode &&= resolveVNode(oldVNode);
+  newVNode &&= resolveVNode(newVNode);
+
   // If oldVNode doesn't exist, add newVNode
   if (!oldVNode) {
     container.appendChild(createDom(newVNode));
@@ -81,4 +84,16 @@ function updateProps(
       dom[key] = newProps[key];
     }
   }
+}
+
+function resolveVNode(vnode: VNode | string): VNode | string {
+  if (typeof vnode === "string") {
+    return vnode;
+  }
+
+  if (typeof vnode.type === "function") {
+    return resolveVNode(vnode.type(vnode.props));
+  }
+
+  return vnode;
 }
