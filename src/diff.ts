@@ -47,12 +47,12 @@ export function diff(
     return;
   }
 
-  // Both are element nodes of the same type - update props and recurse on children
+  // Both are element nodes of the same type update props and recurse on children
   if (typeof oldVNode !== "string" && typeof newVNode !== "string") {
     updateProps(oldNode as HTMLElement, oldVNode.props, newVNode.props);
 
-    const oldChildren = oldVNode.props.children || [];
-    const newChildren = newVNode.props.children || [];
+    const oldChildren = normalizeVNodeChildren(oldVNode.props.children);
+    const newChildren = normalizeVNodeChildren(newVNode.props.children);
     const maxLen = Math.max(oldChildren.length, newChildren.length);
 
     for (let i = 0; i < maxLen; i++) {
@@ -84,6 +84,12 @@ function updateProps(
       dom[key] = newProps[key];
     }
   }
+}
+
+function normalizeVNodeChildren(children: VNode[] | string[] | undefined) {
+  if (!children) return [];
+
+  return Array.isArray(children) ? children : [children];
 }
 
 function resolveVNode(vnode: VNode | string): VNode | string {
