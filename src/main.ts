@@ -1,5 +1,6 @@
 import { createElement, render } from "./vdom.ts";
 import { useEffect, useState } from "./hooks";
+import { useRef } from "./hooks/use-ref.ts";
 
 function Button(props: { onClick: () => void; label: string }) {
   return createElement(
@@ -16,12 +17,16 @@ function Counter() {
     "div",
     null,
     createElement("p", null, `Count: ${count}`),
-    createElement("button", { onclick: () => setCount(count + 1) }, "Increment")
+    createElement(Button, {
+      onClick: () => setCount(count + 1),
+      label: "Increment",
+    })
   );
 }
 
 function App() {
   const [count, setCount] = useState(0);
+  const buttonRef = useRef({});
 
   useEffect(() => {
     console.log("Mounted or count changed:", count);
@@ -47,7 +52,13 @@ function App() {
     }),
     createElement(
       "button",
-      { onclick: () => setCount((c) => c + 1) },
+      {
+        onclick: () => setCount((c) => c + 1),
+        ref: (element: HTMLButtonElement) => {
+          buttonRef.current = element;
+          console.log("Button element", element);
+        },
+      },
       `count ${count}`
     ),
     createElement(Counter),
