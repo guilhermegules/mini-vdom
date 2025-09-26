@@ -72,15 +72,19 @@ function updateProps(
   newProps = newProps || {};
 
   for (const key in oldProps) {
-    if (key !== "children" && !(key in newProps)) {
-      // @ts-ignore
+    if (key === "children") continue;
+
+    if (!(key in newProps) && key in dom) {
+      // @ts-expect-error dynamic assignment, but safe with check above
       dom[key] = undefined;
     }
   }
 
   for (const key in newProps) {
-    if (key !== "children" && oldProps[key] !== newProps[key]) {
-      // @ts-ignore
+    if (key === "children") continue;
+
+    if (oldProps[key] !== newProps[key] && key in dom) {
+      // @ts-expect-error dynamic assignment, but safe with check above
       dom[key] = newProps[key];
     }
   }
