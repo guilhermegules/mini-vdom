@@ -80,8 +80,12 @@ function updateProps(
     }
   }
 
-  for (const key in newProps) {
+  for (const [key, value] of Object.entries(newProps)) {
     if (key === "children") continue;
+
+    if (key === "ref" && typeof value === "function") {
+      value(dom);
+    }
 
     if (oldProps[key] !== newProps[key] && key in dom) {
       // @ts-expect-error dynamic assignment, but safe with check above

@@ -7,6 +7,7 @@ export let currentComponent: ComponentInstance;
 
 export let hook = {
   index: 0,
+  states: new WeakMap<ComponentInstance, any[]>(),
 };
 
 const componentInstances = new WeakMap<HTMLElement, ComponentInstance>();
