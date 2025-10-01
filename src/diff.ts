@@ -94,7 +94,7 @@ function updateProps(
   }
 }
 
-function normalizeVNodeChildren(children: VNode[] | string[] | undefined) {
+function normalizeVNodeChildren(children: (VNode | string)[] | undefined) {
   if (!children) return [];
 
   return Array.isArray(children) ? children : [children];

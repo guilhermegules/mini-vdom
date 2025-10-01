@@ -27,9 +27,13 @@ export function createElement(
     type,
     props: {
       ...props,
-      children: children.flat(),
+      children: normalizeChildren(children),
     },
   };
+}
+
+function normalizeChildren(...children: any[]) {
+  return children.flat().filter((child) => child !== false && child != null);
 }
 
 export function renderComponent(
@@ -37,12 +41,14 @@ export function renderComponent(
   container: HTMLElement
 ): void {
   let instance = componentInstances.get(container);
+
   if (!instance) {
     instance = { hooks: [], effects: [], fn: componentFn, container };
     componentInstances.set(container, instance);
   }
 
   resetHooks(instance);
+
   const vnode = componentFn();
   render(vnode, container);
 
@@ -79,7 +85,7 @@ export function render(vnode: VNode, container: HTMLElement): void {
   previousVNodes.set(container, vnode);
 }
 
-function appendVNode(vnode: VNode, container: HTMLElement) {
+function appendVNode(vnode: VNode | string, container: HTMLElement) {
   const previousVNode = previousVNodes.get(container);
 
   if (previousVNode) {
@@ -87,5 +93,6 @@ function appendVNode(vnode: VNode, container: HTMLElement) {
     return;
   }
 
-  container.appendChild(createDom(vnode));
+  const dom = createDom(vnode);
+  container.appendChild(dom);
 }

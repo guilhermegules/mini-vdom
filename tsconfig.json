@@ -36,5 +36,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src", "src/types/jsx.d.ts"]
+  "include": ["src"]
 }

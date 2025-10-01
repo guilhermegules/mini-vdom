@@ -6,7 +6,7 @@ export function createDom(vnode: VNode | string): Node {
   }
 
   if (typeof vnode.type === "function") {
-    const componentVNode = (vnode.type as Function)(vnode.props || {});
+    const componentVNode = vnode.type(vnode.props || {});
     return createDom(componentVNode);
   }
 
