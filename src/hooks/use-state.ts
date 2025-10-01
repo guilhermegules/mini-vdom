@@ -1,4 +1,4 @@
-import { currentComponent, hook, renderComponent } from "../vdom/vdom";
+import { currentComponent, hook, renderComponent } from "@vdom";
 
 export function useState<T>(
   initial: T

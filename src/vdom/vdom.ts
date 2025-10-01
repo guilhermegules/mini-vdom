@@ -32,10 +32,6 @@ export function createElement(
   };
 }
 
-function normalizeChildren(...children: any[]) {
-  return children.flat().filter((child) => child !== false && child != null);
-}
-
 export function renderComponent(
   componentFn: () => VNode,
   container: HTMLElement
@@ -70,19 +66,33 @@ export function renderComponent(
 }
 
 export function render(vnode: VNode, container: HTMLElement): void {
-  if (typeof vnode.type === "function") {
-    currentComponent = {
-      ...currentComponent,
-      fn: () => (vnode.type as Function)(vnode.props || {}),
-      container,
-    };
-    renderComponent(currentComponent.fn, container);
-    return;
-  }
+  const resolvedVNode = resolveVNode(vnode);
 
-  appendVNode(vnode, container);
+  appendVNode(resolvedVNode, container);
 
   previousVNodes.set(container, vnode);
+}
+
+function resolveVNode(vnode: VNode | string): VNode | string {
+  if (typeof vnode === "string") {
+    return vnode;
+  }
+
+  if (typeof vnode.type === "function") {
+    const componentFn = vnode.type(vnode.props || {});
+    return resolveVNode(componentFn);
+  }
+
+  const children = vnode.props?.children ?? [];
+  const normalizedChildren = Array.isArray(children) ? children : [children];
+
+  return {
+    ...vnode,
+    props: {
+      ...vnode.props,
+      children: normalizedChildren.map(resolveVNode),
+    },
+  };
 }
 
 function appendVNode(vnode: VNode | string, container: HTMLElement) {
@@ -95,4 +105,10 @@ function appendVNode(vnode: VNode | string, container: HTMLElement) {
 
   const dom = createDom(vnode);
   container.appendChild(dom);
+}
+
+function normalizeChildren(...children: any[]) {
+  return Array.isArray(children)
+    ? children.flat().filter((child) => child !== false && child != null)
+    : [];
 }
