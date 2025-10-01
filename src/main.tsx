@@ -1,6 +1,5 @@
-import { createElement, render } from "./vdom.ts";
-import { useEffect, useState } from "./hooks";
-import { useRef } from "./hooks/use-ref.ts";
+import { useEffect, useRef, useState } from "@hooks";
+import { createElement, render } from "@vdom";
 
 function Button(props: { onClick: () => void; label: string }) {
   return createElement(

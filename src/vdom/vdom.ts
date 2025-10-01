@@ -1,7 +1,7 @@
-import { createDom } from "./dom";
-import type { ComponentInstance } from "./types/component-instance.type";
-import type { VNode } from "./types/vnode.type";
-import { diff } from "./diff";
+import { createDom } from "../dom";
+import type { ComponentInstance } from "../types/component-instance.type";
+import type { VNode } from "../types/vnode.type";
+import { diff } from "../diff";
 
 export let currentComponent: ComponentInstance;
 

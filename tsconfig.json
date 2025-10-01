@@ -2,14 +2,16 @@
   "compilerOptions": {
     // Environment setup & latest features
     "lib": ["ESNext", "DOM"],
-    "target": "ESNext",
-    "module": "Preserve",
-    "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
+    "jsxImportSource": "src/vdom",
+    "target": "esnext",
+    "module": "esnext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
 
     // Bundler mode
-    "moduleResolution": "bundler",
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
@@ -24,6 +26,15 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
-  }
+    "noPropertyAccessFromIndexSignature": false,
+
+    "baseUrl": ".",
+    "paths": {
+      "@vdom": ["src/vdom"],
+      "@hooks": ["src/hooks"],
+      "@types": ["src/types"],
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src", "src/types/jsx.d.ts"]
 }
