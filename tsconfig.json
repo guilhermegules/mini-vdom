@@ -33,6 +33,7 @@
       "@vdom": ["src/vdom"],
       "@hooks": ["src/hooks"],
       "@types": ["src/types"],
+      "@factory": ["src/factory"],
       "@/*": ["src/*"]
     }
   },

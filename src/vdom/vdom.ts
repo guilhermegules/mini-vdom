@@ -2,6 +2,7 @@ import { createDom } from "../dom";
 import type { ComponentInstance } from "../types/component-instance.type";
 import type { VNode } from "../types/vnode.type";
 import { diff } from "../diff";
+import { componentFactory } from "@/factory/component-factory";
 
 export let currentComponent: ComponentInstance;
 
@@ -11,7 +12,7 @@ export let hook = {
 };
 
 const componentInstances = new WeakMap<HTMLElement, ComponentInstance>();
-const previousVNodes = new WeakMap<HTMLElement, VNode>();
+const previousVNodes = new WeakMap<HTMLElement, VNode | string>();
 
 export function resetHooks(componentInstance: ComponentInstance) {
   currentComponent = componentInstance;
@@ -39,7 +40,7 @@ export function renderComponent(
   let instance = componentInstances.get(container);
 
   if (!instance) {
-    instance = { hooks: [], effects: [], fn: componentFn, container };
+    instance = componentFactory(componentFn, container);
     componentInstances.set(container, instance);
   }
 
@@ -70,7 +71,7 @@ export function render(vnode: VNode, container: HTMLElement): void {
 
   appendVNode(resolvedVNode, container);
 
-  previousVNodes.set(container, vnode);
+  previousVNodes.set(container, resolvedVNode);
 }
 
 function resolveVNode(vnode: VNode | string): VNode | string {
@@ -79,8 +80,12 @@ function resolveVNode(vnode: VNode | string): VNode | string {
   }
 
   if (typeof vnode.type === "function") {
-    const componentFn = vnode.type(vnode.props || {});
-    return resolveVNode(componentFn);
+    const instance = componentFactory(() =>
+      (vnode.type as Function)(vnode.props || {})
+    );
+    resetHooks(instance);
+    const component = instance.fn();
+    return resolveVNode(component);
   }
 
   const children = vnode.props?.children ?? [];
@@ -107,8 +112,16 @@ function appendVNode(vnode: VNode | string, container: HTMLElement) {
   container.appendChild(dom);
 }
 
-function normalizeChildren(...children: any[]) {
-  return Array.isArray(children)
-    ? children.flat().filter((child) => child !== false && child != null)
-    : [];
+function normalizeChildren(children: any[]) {
+  if (!children) return [];
+
+  if (Array.isArray(children)) {
+    if (children.every((c) => typeof c === "string")) {
+      return children.flat().join("").split(" ");
+    }
+
+    return children.flat().filter(Boolean);
+  }
+
+  return [children];
 }

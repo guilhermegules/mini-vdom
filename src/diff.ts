@@ -97,7 +97,7 @@ function updateProps(
 function normalizeVNodeChildren(children: (VNode | string)[] | undefined) {
   if (!children) return [];
 
-  return Array.isArray(children) ? children : [children];
+  return children;
 }
 
 function resolveVNode(vnode: VNode | string): VNode | string {

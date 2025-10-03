@@ -1,22 +1,34 @@
 import { currentComponent, hook, renderComponent } from "@vdom";
 
 export function useState<T>(
-  initial: T
+  initialValue: T
 ): [T, (value: T | ((prev: T) => T)) => void] {
-  const hooks = currentComponent.hooks;
-  const index = hook.index++;
+  const instance = currentComponent;
+  let states = hook.states.get(instance);
+  const index = hook.index;
 
-  if (hooks.length <= index) {
-    hooks.push(initial);
+  if (!states) {
+    states = [];
+    hook.states.set(instance, states);
+  }
+
+  if (states.length <= index) {
+    states.push(initialValue);
   }
 
   const setState = (newValue: T | ((prev: T) => T)) => {
-    hooks[index] =
-      typeof newValue === "function"
-        ? (newValue as Function)(hooks[index])
-        : newValue;
-    renderComponent(currentComponent.fn, currentComponent.container);
+    const prev = states[index];
+    const next =
+      typeof newValue === "function" ? (newValue as Function)(prev) : newValue;
+
+    if (prev !== next) {
+      states[index] = next;
+      renderComponent(instance.fn, instance.container);
+    }
   };
 
-  return [hooks[index], setState];
+  const value = states[index];
+
+  hook.index++;
+  return [value, setState];
 }

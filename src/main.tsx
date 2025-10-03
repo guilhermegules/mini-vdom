@@ -6,6 +6,12 @@ function Button(props: { onClick: () => void; label: string }) {
 }
 
 function App() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log(count);
+  }, [count]);
+
   return (
     <div id="app-container">
       <h1>Mini VDOM</h1>
@@ -15,7 +21,11 @@ function App() {
         <li>Test with complex trees</li>
       </ul>
       <Button onClick={() => alert("clicked")} label="Click"></Button>
-      <button>count TODO</button>
+      <Button
+        onClick={() => setCount((c) => c + 1)}
+        label={`count ${count}`}
+      ></Button>
+
       <footer>Some footer text here</footer>
     </div>
   );
