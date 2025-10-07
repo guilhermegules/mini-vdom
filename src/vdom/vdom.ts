@@ -1,18 +1,18 @@
-import { createDom } from "../dom";
-import type { ComponentInstance } from "../types/component-instance.type";
-import type { VNode } from "../types/vnode.type";
-import { diff } from "../diff";
+import { diff } from "@/diff";
+import { createDom } from "@/dom";
 import { componentFactory } from "@/factory/component-factory";
+import type { ComponentInstance } from "@/types/component-instance.type";
+import type { VNode } from "@/types/vnode.type";
 
 export let currentComponent: ComponentInstance;
 
 export let hook = {
   index: 0,
-  states: [] as any[],
+  states: [] as any,
 };
 
 const componentInstances = new WeakMap<HTMLElement, ComponentInstance>();
-const previousVNodes = new WeakMap<HTMLElement, VNode | string>();
+const previousVNodes = new WeakMap<HTMLElement, VNode>();
 
 export function resetHooks(componentInstance: ComponentInstance) {
   currentComponent = componentInstance;
@@ -38,14 +38,12 @@ export function renderComponent(
   container: HTMLElement
 ): void {
   let instance = componentInstances.get(container);
-
   if (!instance) {
     instance = componentFactory(componentFn, container);
     componentInstances.set(container, instance);
   }
 
   resetHooks(instance);
-
   const vnode = componentFn();
   render(vnode, container);
 
@@ -67,40 +65,21 @@ export function renderComponent(
 }
 
 export function render(vnode: VNode, container: HTMLElement): void {
-  const resolvedVNode = resolveVNode(vnode);
-
-  appendVNode(resolvedVNode, container);
-
-  previousVNodes.set(container, resolvedVNode);
-}
-
-function resolveVNode(vnode: VNode | string): VNode | string {
-  if (typeof vnode === "string") {
-    return vnode;
-  }
-
   if (typeof vnode.type === "function") {
-    const instance = componentFactory(() =>
-      (vnode.type as Function)(vnode.props || {})
+    currentComponent = componentFactory(
+      () => (vnode.type as Function)(vnode.props || {}),
+      container
     );
-    resetHooks(instance);
-    const component = instance.fn();
-    return resolveVNode(component);
+    renderComponent(currentComponent.fn, container);
+    return;
   }
 
-  const children = vnode.props?.children ?? [];
-  const normalizedChildren = Array.isArray(children) ? children : [children];
+  appendVNode(vnode, container);
 
-  return {
-    ...vnode,
-    props: {
-      ...vnode.props,
-      children: normalizedChildren.map(resolveVNode),
-    },
-  };
+  previousVNodes.set(container, vnode);
 }
 
-function appendVNode(vnode: VNode | string, container: HTMLElement) {
+function appendVNode(vnode: VNode, container: HTMLElement) {
   const previousVNode = previousVNodes.get(container);
 
   if (previousVNode) {
@@ -108,8 +87,7 @@ function appendVNode(vnode: VNode | string, container: HTMLElement) {
     return;
   }
 
-  const dom = createDom(vnode);
-  container.appendChild(dom);
+  container.appendChild(createDom(vnode));
 }
 
 function normalizeChildren(children: any[]) {
