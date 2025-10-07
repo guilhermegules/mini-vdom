@@ -8,7 +8,7 @@ export let currentComponent: ComponentInstance;
 
 export let hook = {
   index: 0,
-  states: new WeakMap<ComponentInstance, any[]>(),
+  states: [] as any[],
 };
 
 const componentInstances = new WeakMap<HTMLElement, ComponentInstance>();
@@ -117,7 +117,7 @@ function normalizeChildren(children: any[]) {
 
   if (Array.isArray(children)) {
     if (children.every((c) => typeof c === "string")) {
-      return children.flat().join("").split(" ");
+      return children.flat().join("");
     }
 
     return children.flat().filter(Boolean);

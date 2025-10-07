@@ -4,13 +4,8 @@ export function useState<T>(
   initialValue: T
 ): [T, (value: T | ((prev: T) => T)) => void] {
   const instance = currentComponent;
-  let states = hook.states.get(instance);
-  const index = hook.index;
-
-  if (!states) {
-    states = [];
-    hook.states.set(instance, states);
-  }
+  let states = hook.states;
+  const index = hook.index++;
 
   if (states.length <= index) {
     states.push(initialValue);
@@ -27,8 +22,7 @@ export function useState<T>(
     }
   };
 
-  const value = states[index];
+  const value = hook.states[index];
 
-  hook.index++;
   return [value, setState];
 }
