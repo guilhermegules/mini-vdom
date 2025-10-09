@@ -1,13 +1,14 @@
-import { createDom } from "./dom";
-import type { ComponentInstance } from "./types/component-instance.type";
-import type { VNode } from "./types/vnode.type";
-import { diff } from "./diff";
+import { diff } from "@/diff";
+import { createDom } from "@/dom";
+import { componentFactory } from "@/factory/component-factory";
+import type { ComponentInstance } from "@/types/component-instance.type";
+import type { VNode } from "@/types/vnode.type";
 
 export let currentComponent: ComponentInstance;
 
 export let hook = {
   index: 0,
-  states: new WeakMap<ComponentInstance, any[]>(),
+  states: [] as any,
 };
 
 const componentInstances = new WeakMap<HTMLElement, ComponentInstance>();
@@ -27,7 +28,7 @@ export function createElement(
     type,
     props: {
       ...props,
-      children: children.flat(),
+      children: normalizeChildren(children),
     },
   };
 }
@@ -38,7 +39,7 @@ export function renderComponent(
 ): void {
   let instance = componentInstances.get(container);
   if (!instance) {
-    instance = { hooks: [], effects: [], fn: componentFn, container };
+    instance = componentFactory(componentFn, container);
     componentInstances.set(container, instance);
   }
 
@@ -65,11 +66,10 @@ export function renderComponent(
 
 export function render(vnode: VNode, container: HTMLElement): void {
   if (typeof vnode.type === "function") {
-    currentComponent = {
-      ...currentComponent,
-      fn: () => (vnode.type as Function)(vnode.props || {}),
-      container,
-    };
+    currentComponent = componentFactory(
+      () => (vnode.type as Function)(vnode.props || {}),
+      container
+    );
     renderComponent(currentComponent.fn, container);
     return;
   }
@@ -88,4 +88,18 @@ function appendVNode(vnode: VNode, container: HTMLElement) {
   }
 
   container.appendChild(createDom(vnode));
+}
+
+function normalizeChildren(children: any[]) {
+  if (!children) return [];
+
+  if (Array.isArray(children)) {
+    if (children.every((c) => typeof c === "string")) {
+      return children.flat().join("");
+    }
+
+    return children.flat().filter(Boolean);
+  }
+
+  return [children];
 }

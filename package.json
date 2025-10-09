@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "bun build src/main.ts --outdir=dist --bundle",
+    "build": "bun build src/main.tsx --outdir=dist --bundle",
     "serve": "bun run server.ts"
   },
   "devDependencies": {
@@ -12,5 +12,8 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "exports": {
+    "./@vdom/*": "./src/vdom/*"
   }
 }

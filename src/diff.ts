@@ -53,6 +53,21 @@ export function diff(
 
     const oldChildren = normalizeVNodeChildren(oldVNode.props.children);
     const newChildren = normalizeVNodeChildren(newVNode.props.children);
+
+    if (oldChildren.length === 1 && newChildren.length === 1) {
+      const [oldChild] = oldChildren;
+      const [newChild] = newChildren;
+      if (
+        typeof oldChild === "string" &&
+        typeof newChild === "string" &&
+        oldChild !== newChild &&
+        oldNode
+      ) {
+        oldNode.textContent = newChild;
+        return;
+      }
+    }
+
     const maxLen = Math.max(oldChildren.length, newChildren.length);
 
     for (let i = 0; i < maxLen; i++) {
@@ -94,10 +109,12 @@ function updateProps(
   }
 }
 
-function normalizeVNodeChildren(children: VNode[] | string[] | undefined) {
+function normalizeVNodeChildren(
+  children: (VNode | string)[] | string | undefined
+) {
   if (!children) return [];
 
-  return Array.isArray(children) ? children : [children];
+  return children;
 }
 
 function resolveVNode(vnode: VNode | string): VNode | string {
